@@ -1,6 +1,7 @@
 import os
 import sys
 import MetaTrader5 as mt5
+from datetime import datetime, timedelta
 from loguru import logger
 from dotenv import load_dotenv
 
@@ -36,16 +37,25 @@ def main():
     from strategy import SMCStrategy
     from risk_management import RiskManager
     from execution import OrderExecutor
+    from reporting import ReportGenerator
     
     # Switch to M5 for faster real-time testing
     strategy = SMCStrategy(symbol, timeframe=mt5.TIMEFRAME_M5)
-    executor = OrderExecutor(symbol, magic_number=int(os.getenv("MAGIC_NUMBER", 123456)))
+    magic_number = int(os.getenv("MAGIC_NUMBER", 123456))
+    executor = OrderExecutor(symbol, magic_number=magic_number)
+    reporter = ReportGenerator(magic_number=magic_number)
     
     import time
     logger.info(f"VantEdge Professional SMC Scanner started on {symbol} (M5).")
     
+    last_report_time = datetime.now()
+    
     try:
         while True:
+            # Generate Daily Report every 24 hours
+            if datetime.now() - last_report_time > timedelta(days=1):
+                reporter.save_report_to_file()
+                last_report_time = datetime.now()
             # Refresh account info
             account_info = mt5.account_info()
             if account_info is None:
