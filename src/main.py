@@ -37,45 +37,48 @@ def main():
     from risk_management import RiskManager
     from execution import OrderExecutor
     
-    strategy = SMCStrategy(symbol)
+    # Switch to M5 for faster real-time testing
+    strategy = SMCStrategy(symbol, timeframe=mt5.TIMEFRAME_M5)
     executor = OrderExecutor(symbol, magic_number=int(os.getenv("MAGIC_NUMBER", 123456)))
     
+    import time
+    logger.info(f"VantEdge Live Scanner started on {symbol} (M5). Press Ctrl+C to stop.")
+    
     try:
-        # Get Account Info for Risk Management
-        account_info = mt5.account_info()
-        if account_info is None:
-            logger.error("Could not retrieve account info.")
-            return
+        while True:
+            # Refresh account info
+            account_info = mt5.account_info()
+            if account_info is None:
+                logger.error("Could not retrieve account info.")
+                break
+                
+            risk_manager = RiskManager(account_info.balance)
             
-        risk_manager = RiskManager(account_info.balance)
-        
-        # Check Daily Loss Limit
-        if not risk_manager.is_trading_allowed(0): 
-            return
-
-        # SMC Strategy Loop
-        signal = strategy.generate_signals()
-        if signal:
-            # High-confluence setup found
-            lot_size = risk_manager.calculate_position_size(symbol, signal['sl_points'])
+            # SMC Strategy Check
+            signal = strategy.generate_signals()
+            if signal:
+                logger.info(f"ALGO TRIGGERED: {signal['action']} signal found!")
+                lot_size = risk_manager.calculate_position_size(symbol, signal['sl_points'])
+                
+                executor.execute_trade(
+                    action=signal['action'],
+                    lot=lot_size,
+                    price=signal['entry_price'],
+                    sl=signal['stop_loss'],
+                    tp=signal['take_profit']
+                )
+                # Wait longer after a trade
+                time.sleep(300) 
             
-            # Execute Trade
-            executor.execute_trade(
-                action=signal['action'],
-                lot=lot_size,
-                price=signal['entry_price'],
-                sl=signal['stop_loss'],
-                tp=signal['take_profit']
-            )
-        else:
-            logger.info("No high-probability SMC setups found. Staying in cash.")
+            # Wait 60 seconds before next scan
+            time.sleep(60)
             
-        logger.info("Bot engine ready for execution...")
+    except KeyboardInterrupt:
+        logger.info("Scanner stopped by user.")
     except Exception as e:
         logger.error(f"Execution error: {e}")
     finally:
-        # mt5.shutdown()
-        pass
+        mt5.shutdown()
 
 if __name__ == "__main__":
     main()
