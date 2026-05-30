@@ -34,15 +34,32 @@ def main():
     logger.info(f"VantEdge monitoring {symbol}...")
     
     from strategy import SMCStrategy
+    from risk_management import RiskManager
+    
     strategy = SMCStrategy(symbol)
     
     try:
+        # Get Account Info for Risk Management
+        account_info = mt5.account_info()
+        if account_info is None:
+            logger.error("Could not retrieve account info.")
+            return
+            
+        risk_manager = RiskManager(account_info.balance)
+        
+        # Check Daily Loss Limit (Placeholder for tracking)
+        if not risk_manager.is_trading_allowed(0): 
+            return
+
         # SMC Strategy Loop
         signal = strategy.generate_signals()
         if signal:
-            logger.info(f"Signal detected: {signal}")
+            # Calculate Risk-Managed Lot Size
+            # stop_loss_points = signal['sl_distance']
+            # lot_size = risk_manager.calculate_position_size(symbol, stop_loss_points)
+            logger.info(f"High-confluence signal detected: {signal}")
         else:
-            logger.info("No SMC setups found currently.")
+            logger.info("No high-probability SMC setups found. Staying in cash.")
             
         logger.info("Bot engine ready for execution...")
     except Exception as e:

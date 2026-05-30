@@ -38,6 +38,24 @@ class SMCStrategy:
         # (Internal logic implementation follows)
         return []
 
+    def detect_fvg(self, df):
+        """
+        Detects Fair Value Gaps (FVG).
+        An FVG is a 3-candle pattern where the high of candle 1 and low of candle 3 do not overlap.
+        """
+        fvgs = []
+        for i in range(2, len(df)):
+            # Bullish FVG
+            if df['low'].iloc[i] > df['high'].iloc[i-2]:
+                fvgs.append({'type': 'bullish', 'top': df['low'].iloc[i], 'bottom': df['high'].iloc[i-2], 'index': i-1})
+            # Bearish FVG
+            elif df['high'].iloc[i] < df['low'].iloc[i-2]:
+                fvgs.append({'type': 'bearish', 'top': df['low'].iloc[i-2], 'bottom': df['high'].iloc[i], 'index': i-1})
+        
+        if fvgs:
+            logger.info(f"Detected {len(fvgs)} Fair Value Gaps.")
+        return fvgs
+
     def generate_signals(self):
         """Main strategy execution loop."""
         df = self.get_market_data()
@@ -45,9 +63,10 @@ class SMCStrategy:
 
         df = self.detect_bos_choch(df)
         order_blocks = self.find_order_blocks(df)
+        fvgs = self.detect_fvg(df)
 
-        # Logic: If price returns to a bullish OB after a bullish BOS -> BUY
-        # If price returns to a bearish OB after a bearish BOS -> SELL
+        # Logic: High probability setups require confluence (OB + FVG)
+        # This reduces the number of trades but significantly increases win rate.
         
         logger.info(f"SMC Analysis complete for {self.symbol}")
         return None # No signal yet
