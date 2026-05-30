@@ -1,0 +1,6 @@
+2026-05-30 17:10:17.744 | INFO     | __main__:setup_logger:12 - VantEdge Forex Bot Initialized
+2026-05-30 17:10:17.765 | INFO     | __main__:connect_mt5:23 - Connected to MetaTrader 5 Successfully
+2026-05-30 17:10:17.766 | INFO     | __main__:main:34 - VantEdge monitoring EURUSD...
+2026-05-30 17:10:26.582 | ERROR    | strategy:get_market_data:16 - Failed to fetch data for EURUSD
+2026-05-30 17:10:26.582 | INFO     | __main__:main:71 - No high-probability SMC setups found. Staying in cash.
+2026-05-30 17:10:26.583 | INFO     | __main__:main:73 - Bot engine ready for execution...
