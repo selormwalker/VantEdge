@@ -35,8 +35,10 @@ def main():
     
     from strategy import SMCStrategy
     from risk_management import RiskManager
+    from execution import OrderExecutor
     
     strategy = SMCStrategy(symbol)
+    executor = OrderExecutor(symbol, magic_number=int(os.getenv("MAGIC_NUMBER", 123456)))
     
     try:
         # Get Account Info for Risk Management
@@ -47,17 +49,24 @@ def main():
             
         risk_manager = RiskManager(account_info.balance)
         
-        # Check Daily Loss Limit (Placeholder for tracking)
+        # Check Daily Loss Limit
         if not risk_manager.is_trading_allowed(0): 
             return
 
         # SMC Strategy Loop
         signal = strategy.generate_signals()
         if signal:
-            # Calculate Risk-Managed Lot Size
-            # stop_loss_points = signal['sl_distance']
-            # lot_size = risk_manager.calculate_position_size(symbol, stop_loss_points)
-            logger.info(f"High-confluence signal detected: {signal}")
+            # High-confluence setup found
+            lot_size = risk_manager.calculate_position_size(symbol, signal['sl_points'])
+            
+            # Execute Trade
+            executor.execute_trade(
+                action=signal['action'],
+                lot=lot_size,
+                price=signal['entry_price'],
+                sl=signal['stop_loss'],
+                tp=signal['take_profit']
+            )
         else:
             logger.info("No high-probability SMC setups found. Staying in cash.")
             
