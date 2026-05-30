@@ -1,0 +1,8 @@
+MetaTrader5
+pandas
+python-dotenv
+loguru
+pydantic
+pyyaml
+pytest
+matplotlib
