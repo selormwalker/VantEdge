@@ -33,10 +33,17 @@ def main():
     symbol = os.getenv("TRADING_SYMBOL", "EURUSD")
     logger.info(f"VantEdge monitoring {symbol}...")
     
+    from strategy import SMCStrategy
+    strategy = SMCStrategy(symbol)
+    
     try:
-        # Placeholder for Forex Trading Logic
-        # account_info = mt5.account_info()
-        # logger.info(f"Account Balance: {account_info.balance}")
+        # SMC Strategy Loop
+        signal = strategy.generate_signals()
+        if signal:
+            logger.info(f"Signal detected: {signal}")
+        else:
+            logger.info("No SMC setups found currently.")
+            
         logger.info("Bot engine ready for execution...")
     except Exception as e:
         logger.error(f"Execution error: {e}")
