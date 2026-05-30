@@ -42,7 +42,7 @@ def main():
     executor = OrderExecutor(symbol, magic_number=int(os.getenv("MAGIC_NUMBER", 123456)))
     
     import time
-    logger.info(f"VantEdge Live Scanner started on {symbol} (M5). Press Ctrl+C to stop.")
+    logger.info(f"VantEdge Professional SMC Scanner started on {symbol} (M5).")
     
     try:
         while True:

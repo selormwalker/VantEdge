@@ -77,6 +77,7 @@ class SMCStrategy:
 
     def generate_signals(self):
         """Generates high-confluence SMC signals."""
+        logger.debug(f"Scanning {self.symbol} for SMC setups...")
         df = self.get_market_data()
         if df is None: return None
         
@@ -86,6 +87,7 @@ class SMCStrategy:
         if not structure:
             return None
 
+        logger.info(f"Structure identified: {structure} | High: {levels[0]} Low: {levels[1]}")
         ob = self.find_order_blocks(df, structure)
         fvgs = self.detect_fvg(df)
         

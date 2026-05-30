@@ -14,3 +14,36 @@
 2026-05-30 17:17:26.190 | INFO     | __main__:main:34 - VantEdge monitoring EURUSDm...
 2026-05-30 17:17:27.181 | INFO     | __main__:main:72 - No high-probability SMC setups found. Staying in cash.
 2026-05-30 17:17:27.182 | INFO     | __main__:main:74 - Bot engine ready for execution...
+2026-05-30 17:18:27.425 | INFO     | __main__:setup_logger:12 - VantEdge Forex Bot Initialized
+2026-05-30 17:18:27.460 | INFO     | __main__:connect_mt5:23 - Connected to MetaTrader 5 Successfully
+2026-05-30 17:18:27.460 | INFO     | __main__:main:34 - VantEdge monitoring EURUSDm...
+2026-05-30 17:18:28.582 | INFO     | __main__:main:45 - VantEdge Live Scanner started on EURUSDm (M5). Press Ctrl+C to stop.
+2026-05-30 17:26:42.221 | INFO     | __main__:setup_logger:12 - VantEdge Forex Bot Initialized
+2026-05-30 17:26:42.250 | INFO     | __main__:connect_mt5:23 - Connected to MetaTrader 5 Successfully
+2026-05-30 17:26:42.250 | INFO     | __main__:main:34 - VantEdge monitoring EURUSDm...
+2026-05-30 17:26:43.622 | INFO     | __main__:main:45 - VantEdge Live Scanner started on EURUSDm (M5). Press Ctrl+C to stop.
+2026-05-30 17:26:43.637 | INFO     | strategy:generate_signals:90 - Structure identified: BEARISH_BOS | High: 1.1669 Low: 1.1660300000000001
+2026-05-30 17:27:43.661 | INFO     | strategy:generate_signals:90 - Structure identified: BEARISH_BOS | High: 1.1669 Low: 1.1660300000000001
+2026-05-30 17:28:43.672 | INFO     | strategy:generate_signals:90 - Structure identified: BEARISH_BOS | High: 1.1669 Low: 1.1660300000000001
+2026-05-30 17:34:19.634 | INFO     | __main__:setup_logger:12 - VantEdge Forex Bot Initialized
+2026-05-30 17:34:19.654 | INFO     | __main__:connect_mt5:23 - Connected to MetaTrader 5 Successfully
+2026-05-30 17:34:19.656 | INFO     | __main__:main:34 - VantEdge monitoring BTCUSDm...
+2026-05-30 17:34:20.809 | WARNING  | __main__:main:45 - FORCING IMMEDIATE DEMONSTRATION TRADE...
+2026-05-30 17:34:21.066 | INFO     | execution:execute_trade:48 - Order executed successfully: BUY 0.01 BTCUSDm at 73774.41
+2026-05-30 17:34:21.067 | INFO     | __main__:main:59 - VantEdge Live Scanner started on BTCUSDm (M5). Press Ctrl+C to stop.
+2026-05-30 17:36:23.444 | INFO     | __main__:setup_logger:12 - VantEdge Forex Bot Initialized
+2026-05-30 17:36:23.464 | INFO     | __main__:connect_mt5:23 - Connected to MetaTrader 5 Successfully
+2026-05-30 17:36:23.466 | INFO     | __main__:main:34 - VantEdge monitoring BTCUSDm...
+2026-05-30 17:36:24.719 | WARNING  | __main__:main:45 - FORCING IMMEDIATE DEMONSTRATION TRADE...
+2026-05-30 17:36:25.436 | INFO     | execution:execute_trade:48 - Order executed successfully: BUY 0.01 BTCUSDm at 73765.41
+2026-05-30 17:36:25.437 | INFO     | __main__:main:59 - VantEdge Live Scanner started on BTCUSDm (M5). Press Ctrl+C to stop.
+2026-05-30 18:00:37.154 | INFO     | __main__:setup_logger:12 - VantEdge Forex Bot Initialized
+2026-05-30 18:00:37.176 | INFO     | __main__:connect_mt5:23 - Connected to MetaTrader 5 Successfully
+2026-05-30 18:00:37.177 | INFO     | __main__:main:34 - VantEdge monitoring BTCUSDm...
+2026-05-30 18:00:39.244 | WARNING  | __main__:main:45 - FORCING HIGH-VOLUME DEMONSTRATION TRADE (20 LOTS)...
+2026-05-30 18:00:39.400 | INFO     | execution:execute_trade:48 - Order executed successfully: BUY 20.0 BTCUSDm at 73917.37
+2026-05-30 18:00:39.400 | INFO     | __main__:main:59 - VantEdge Live Scanner started on BTCUSDm (M5). Press Ctrl+C to stop.
+2026-05-30 18:15:07.784 | INFO     | __main__:setup_logger:12 - VantEdge Forex Bot Initialized
+2026-05-30 18:15:07.851 | INFO     | __main__:connect_mt5:23 - Connected to MetaTrader 5 Successfully
+2026-05-30 18:15:07.860 | INFO     | __main__:main:34 - VantEdge monitoring BTCUSDm...
+2026-05-30 18:15:10.597 | INFO     | __main__:main:45 - VantEdge Professional SMC Scanner started on BTCUSDm (M5).
