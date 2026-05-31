@@ -1,5 +1,6 @@
 import os
 import sys
+import asyncio
 import MetaTrader5 as mt5
 from datetime import datetime, timedelta
 from loguru import logger
@@ -8,87 +9,87 @@ from dotenv import load_dotenv
 # Add src to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-def setup_logger():
-    logger.add("logs/vantedge_forex.log", rotation="500 MB", level="INFO")
-    logger.info("VantEdge Forex Bot Initialized")
+from strategy import SMCStrategy
+from risk_management import RiskManager
+from execution import OrderExecutor
 
-def connect_mt5():
-    login = int(os.getenv("MT5_LOGIN", 0))
-    password = os.getenv("MT5_PASSWORD", "")
-    server = os.getenv("MT5_SERVER", "")
+class VantEdgeSwarm:
+    def __init__(self, symbols):
+        self.symbols = symbols
+        self.strategies = {s: SMCStrategy(s) for s in symbols}
+        self.executors = {s: OrderExecutor(s) for s in symbols}
+        self.is_running = True
 
-    if not mt5.initialize(login=login, password=password, server=server):
-        logger.error(f"MT5 initialization failed, error code: {mt5.last_error()}")
-        return False
-    
-    logger.info("Connected to MetaTrader 5 Successfully")
-    return True
+    async def check_news_filter(self):
+        """Institutional news filter: placeholder for real API integration."""
+        # In production, fetch from ForexFactory or similar
+        return True # Approved to trade
 
-def main():
-    load_dotenv()
-    setup_logger()
-    
-    if not connect_mt5():
-        return
+    async def monitor_symbol(self, symbol):
+        logger.info(f"[*] Commencing node monitoring for {symbol}...")
+        
+        while self.is_running:
+            try:
+                # 1. Institutional Safeguards
+                if not await self.check_news_filter():
+                    await asyncio.sleep(300)
+                    continue
 
-    symbol = os.getenv("TRADING_SYMBOL", "EURUSD")
-    logger.info(f"VantEdge monitoring {symbol}...")
-    
-    from strategy import SMCStrategy
-    from risk_management import RiskManager
-    from execution import OrderExecutor
-    from reporting import ReportGenerator
-    
-    # Switch to M5 for faster real-time testing
-    strategy = SMCStrategy(symbol, timeframe=mt5.TIMEFRAME_M5)
-    magic_number = int(os.getenv("MAGIC_NUMBER", 123456))
-    executor = OrderExecutor(symbol, magic_number=magic_number)
-    reporter = ReportGenerator(magic_number=magic_number)
-    
-    import time
-    logger.info(f"VantEdge Professional SMC Scanner started on {symbol} (M5).")
-    
-    last_report_time = datetime.now()
-    
-    try:
-        while True:
-            # Generate Daily Report every 24 hours
-            if datetime.now() - last_report_time > timedelta(days=1):
-                reporter.save_report_to_file()
-                last_report_time = datetime.now()
-            # Refresh account info
-            account_info = mt5.account_info()
-            if account_info is None:
-                logger.error("Could not retrieve account info.")
-                break
+                # 2. Generate Signals
+                signal = self.strategies[symbol].generate_signal()
+                if signal:
+                    logger.warning(f"[!] ALGO TRIGGERED on {symbol}: {signal['reason']}")
+                    
+                    # 3. Risk Check
+                    account_info = mt5.account_info()
+                    risk_mgr = RiskManager(account_info.balance)
+                    
+                    # Calculate dynamically
+                    tick = mt5.symbol_info_tick(symbol)
+                    sl_points = abs(signal['price'] - signal['sl']) / mt5.symbol_info(symbol).point
+                    lot_size = risk_mgr.calculate_position_size(symbol, sl_points)
+                    
+                    # 4. Execute
+                    self.executors[symbol].execute_trade(
+                        action=signal['action'],
+                        lot=lot_size,
+                        price=signal['price'],
+                        sl=signal['sl'],
+                        tp=signal['tp'],
+                        comment=f"Nexus v2.0 - {signal['reason']}"
+                    )
+                    
+                    await asyncio.sleep(600) # Cooldown after trade
+
+                await asyncio.sleep(15) # High-frequency scan interval
                 
-            risk_manager = RiskManager(account_info.balance)
-            
-            # SMC Strategy Check
-            signal = strategy.generate_signals()
-            if signal:
-                logger.info(f"ALGO TRIGGERED: {signal['action']} signal found!")
-                lot_size = risk_manager.calculate_position_size(symbol, signal['sl_points'])
-                
-                executor.execute_trade(
-                    action=signal['action'],
-                    lot=lot_size,
-                    price=signal['entry_price'],
-                    sl=signal['stop_loss'],
-                    tp=signal['take_profit']
-                )
-                # Wait longer after a trade
-                time.sleep(300) 
-            
-            # Wait 60 seconds before next scan
-            time.sleep(60)
-            
-    except KeyboardInterrupt:
-        logger.info("Scanner stopped by user.")
-    except Exception as e:
-        logger.error(f"Execution error: {e}")
-    finally:
-        mt5.shutdown()
+            except Exception as e:
+                logger.error(f"Node failure on {symbol}: {e}")
+                await asyncio.sleep(30)
+
+    async def start(self):
+        # Initialize swarm
+        load_dotenv()
+        login = int(os.getenv("MT5_LOGIN", 0))
+        password = os.getenv("MT5_PASSWORD", "")
+        server = os.getenv("MT5_SERVER", "")
+
+        if not mt5.initialize(login=login, password=password, server=server):
+            logger.critical("MT5 Nexus Handshake Failed.")
+            return
+
+        logger.info(f"Nexus Swarm Online. Nodes: {len(self.symbols)}")
+        
+        # Parallel Execution
+        tasks = [self.monitor_symbol(s) for s in self.symbols]
+        await asyncio.gather(*tasks)
 
 if __name__ == "__main__":
-    main()
+    symbols_to_trade = ["EURUSD", "GBPUSD", "XAUUSD", "USDJPY"]
+    swarm = VantEdgeSwarm(symbols_to_trade)
+    try:
+        asyncio.run(swarm.start())
+    except KeyboardInterrupt:
+        logger.info("Nexus Swarm Disconnected.")
+    finally:
+        mt5.shutdown()

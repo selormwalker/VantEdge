@@ -8,9 +8,13 @@ class OrderExecutor:
 
     def execute_trade(self, action, lot, price, sl, tp, comment="VantEdge SMC"):
         """
-        Sends an execution request to MT5.
-        action: 'BUY' or 'SELL'
+        Sends an execution request to MT5 with enhanced filling protection.
         """
+        symbol_info = mt5.symbol_info(self.symbol)
+        if not symbol_info:
+            logger.error(f"Symbol {self.symbol} not found.")
+            return None
+
         if action == 'BUY':
             order_type = mt5.ORDER_TYPE_BUY
         elif action == 'SELL':
@@ -22,16 +26,16 @@ class OrderExecutor:
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
             "symbol": self.symbol,
-            "volume": lot,
+            "volume": float(lot),
             "type": order_type,
-            "price": price,
-            "sl": sl,
-            "tp": tp,
-            "deviation": 10, # Slippage protection in points
+            "price": float(price),
+            "sl": float(sl),
+            "tp": float(tp),
+            "deviation": 20, # Increased for high-speed
             "magic": self.magic_number,
             "comment": comment,
             "type_time": mt5.ORDER_TIME_GTC,
-            "type_filling": mt5.ORDER_FILLING_IOC,
+            "type_filling": mt5.ORDER_FILLING_FOK if symbol_info.filling_mode == mt5.SYMBOL_FILLING_FOK else mt5.ORDER_FILLING_IOC,
         }
 
         # Send order to MT5
@@ -45,8 +49,13 @@ class OrderExecutor:
             logger.error(f"Order failed! Retcode: {result.retcode}, Comment: {result.comment}")
             return result
         
-        logger.info(f"Order executed successfully: {action} {lot} {self.symbol} at {price}")
+        logger.warning(f"INSTITUTIONAL EXECUTION: {action} {lot} {self.symbol} at {price}")
         return result
+
+    def apply_trailing_stop(self, position_ticket, trail_pips):
+        """Institutional Trailing Stop placeholder for v2.0."""
+        # This will be implemented with a dedicated thread in the next patch
+        pass
 
     def close_all_positions(self):
         """Emergency function to close all open positions for this bot's magic number."""
